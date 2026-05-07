@@ -10,290 +10,290 @@ import logger from '../../utils/logger';
 const debug = logger('parent:');
 
 class Parent extends TreeNode {
-    // Used to store icon, checkbox(span) etc. these blocks are not in children properties in json state.
-    attachments: LinkedList<Parent> = new LinkedList();
+	// Used to store icon, checkbox(span) etc. these blocks are not in children properties in json state.
+	attachments: LinkedList<Parent> = new LinkedList();
 
-    children: LinkedList<TreeNode> = new LinkedList();
+	children: LinkedList<TreeNode> = new LinkedList();
 
-    override prev: Nullable<Parent> = null;
+	override prev: Nullable<Parent> = null;
 
-    override next: Nullable<Parent> = null;
+	override next: Nullable<Parent> = null;
 
-    private _active: boolean = false;
+	private _active: boolean = false;
 
-    get active() {
-        return this._active;
-    }
+	get active() {
+		return this._active;
+	}
 
-    set active(value) {
-        this._active = value;
+	set active(value) {
+		this._active = value;
 
-        if (this.domNode == null) {
-            debug.error('domNode is null.');
+		if (this.domNode == null) {
+			debug.error('domNode is null.');
 
-            return;
-        }
+			return;
+		}
 
-        if (value)
-            operateClassName(this.domNode, 'add', CLASS_NAMES.MU_ACTIVE);
-        else
-            operateClassName(this.domNode, 'remove', CLASS_NAMES.MU_ACTIVE);
-    }
+		if (value)
+			operateClassName(this.domNode, 'add', CLASS_NAMES.MU_ACTIVE);
+		else
+			operateClassName(this.domNode, 'remove', CLASS_NAMES.MU_ACTIVE);
+	}
 
-    get firstChild() {
-        return this.children.head;
-    }
+	get firstChild() {
+		return this.children.head;
+	}
 
-    get lastChild() {
-        return this.children.tail;
-    }
+	get lastChild() {
+		return this.children.tail;
+	}
 
-    get isContainerBlock() {
-        return /block-quote|order-list|bullet-list|task-list|list-item|task-list-item/.test(
-            this.blockName,
-        );
-    }
+	get isContainerBlock() {
+		return /block-quote|order-list|bullet-list|task-list|list-item/.test(
+			this.blockName,
+		);
+	}
 
-    get path(): TBlockPath {
-    // You should never call get path on Parent.
-        debug.error('You should never call get path on Parent.');
-        return [];
-    }
+	get path(): TBlockPath {
+		// You should never call get path on Parent.
+		debug.error('You should never call get path on Parent.');
+		return [];
+	}
 
-    getJsonPath() {
-        const { path } = this;
-        if (this.isContainerBlock)
-            path.pop();
+	getJsonPath() {
+		const { path } = this;
+		if (this.isContainerBlock)
+			path.pop();
 
-        return path;
-    }
+		return path;
+	}
 
-    getState(): TState {
-    // You should never call get state on Parent.
-        debug.error('You should never call get state on Parent.');
-        return {} as TState;
-    }
+	getState(): TState {
+		// You should never call get state on Parent.
+		debug.error('You should never call get state on Parent.');
+		return {} as TState;
+	}
 
-    /**
-     * Clone itself.
-     */
-    clone() {
-        const state = this.getState();
-        const { muya } = this;
+	/**
+	 * Clone itself.
+	 */
+	clone() {
+		const state = this.getState();
+		const { muya } = this;
 
-        return this.static.create(muya, state);
-    }
+		return this.static.create(muya, state);
+	}
 
-    /**
-     * Return the length of children.
-     */
-    length() {
-        return this.reduce((acc: number) => acc + 1, 0);
-    }
+	/**
+	 * Return the length of children.
+	 */
+	length() {
+		return this.reduce((acc: number) => acc + 1, 0);
+	}
 
-    offset(node: TreeNode) {
-        return this.children.offset(node);
-    }
+	offset(node: TreeNode) {
+		return this.children.offset(node);
+	}
 
-    find(offset: number) {
-        return this.children.find(offset);
-    }
+	find(offset: number) {
+		return this.children.find(offset);
+	}
 
-    /**
-     * Append node in linkedList, mounted it into the DOM tree, dispatch operation if necessary.
-     * @param  {...any} args
-     */
-    append(...childrenAndSource: [...Parent[], string]): void;
-    append(...children: Parent[]): void;
-    append(...args: unknown[]) {
-        const source
-            = typeof args[args.length - 1] === 'string' ? args.pop() : 'api';
+	/**
+	 * Append node in linkedList, mounted it into the DOM tree, dispatch operation if necessary.
+	 * @param  {...any} args
+	 */
+	append(...childrenAndSource: [...Parent[], string]): void;
+	append(...children: Parent[]): void;
+	append(...args: unknown[]) {
+		const source
+			= typeof args[args.length - 1] === 'string' ? args.pop() : 'api';
 
-        (args as Parent[]).forEach((node) => {
-            node.parent = this;
-            const { domNode } = node;
-            this.domNode!.appendChild(domNode!);
-        });
+		(args as Parent[]).forEach((node) => {
+			node.parent = this;
+			const { domNode } = node;
+			this.domNode!.appendChild(domNode!);
+		});
 
-        this.children.append(...(args as Parent[]));
+		this.children.append(...(args as Parent[]));
 
-        // push operations
-        if (source === 'user') {
-            (args as Parent[]).forEach((node) => {
-                const path = node.getJsonPath();
-                const state = node.getState();
-                this.jsonState.insertOperation(path, state);
-            });
-        }
-    }
+		// push operations
+		if (source === 'user') {
+			(args as Parent[]).forEach((node) => {
+				const path = node.getJsonPath();
+				const state = node.getState();
+				this.jsonState.insertOperation(path, state);
+			});
+		}
+	}
 
-    /**
-     * This method will only be used when initialization.
-     * @param  {...any} nodes attachment blocks
-     */
-    appendAttachment(...nodes: Parent[]) {
-        nodes.forEach((node) => {
-            node.parent = this;
-            const { domNode } = node;
-            this.domNode!.appendChild(domNode!);
-        });
+	/**
+	 * This method will only be used when initialization.
+	 * @param  {...any} nodes attachment blocks
+	 */
+	appendAttachment(...nodes: Parent[]) {
+		nodes.forEach((node) => {
+			node.parent = this;
+			const { domNode } = node;
+			this.domNode!.appendChild(domNode!);
+		});
 
-        this.attachments.append(...nodes);
-    }
+		this.attachments.append(...nodes);
+	}
 
-    forEachAt(
-        index: number,
-        length: number = this.length(),
-        callback: (cur: TreeNode, i: number) => void,
-    ) {
-        return this.children.forEachAt(index, length, callback);
-    }
+	forEachAt(
+		index: number,
+		length: number = this.length(),
+		callback: (cur: TreeNode, i: number) => void,
+	) {
+		return this.children.forEachAt(index, length, callback);
+	}
 
-    forEach(callback: (cur: TreeNode, i: number) => void) {
-        return this.children.forEach(callback);
-    }
+	forEach(callback: (cur: TreeNode, i: number) => void) {
+		return this.children.forEach(callback);
+	}
 
-    map<M>(callback: (cur: TreeNode, i: number) => M): M[] {
-        return this.children.map(callback);
-    }
+	map<M>(callback: (cur: TreeNode, i: number) => M): M[] {
+		return this.children.map(callback);
+	}
 
-    reduce<M>(
-        callback: (memo: M, cur: TreeNode, i: number) => M,
-        initialValue: M,
-    ): M {
-        return this.children.reduce<M>(callback, initialValue);
-    }
+	reduce<M>(
+		callback: (memo: M, cur: TreeNode, i: number) => M,
+		initialValue: M,
+	): M {
+		return this.children.reduce<M>(callback, initialValue);
+	}
 
-    /**
-     * Use the `block` to replace the current block(this)
-     * @param {TreeNode} block
-     */
-    replaceWith(block: Parent, source = 'user') {
-        if (!this.parent) {
-            debug.warn('Call replaceWith need has a parent block');
+	/**
+	 * Use the `block` to replace the current block(this)
+	 * @param {TreeNode} block
+	 */
+	replaceWith(block: Parent, source = 'user') {
+		if (!this.parent) {
+			debug.warn('Call replaceWith need has a parent block');
 
-            return;
-        }
+			return;
+		}
 
-        this.parent.insertBefore(block, this, source);
-        block.parent = this.parent;
-        this.remove(source);
+		this.parent.insertBefore(block, this, source);
+		block.parent = this.parent;
+		this.remove(source);
 
-        return block;
-    }
+		return block;
+	}
 
-    insertBefore(
-        newNode: Parent,
-        refNode: Nullable<Parent> = null,
-        source = 'user',
-    ) {
-        newNode.parent = this;
-        this.children.insertBefore(newNode, refNode);
-        this.domNode!.insertBefore(
-            newNode.domNode!,
-            refNode ? refNode.domNode! : null,
-        );
+	insertBefore(
+		newNode: Parent,
+		refNode: Nullable<Parent> = null,
+		source = 'user',
+	) {
+		newNode.parent = this;
+		this.children.insertBefore(newNode, refNode);
+		this.domNode!.insertBefore(
+			newNode.domNode!,
+			refNode ? refNode.domNode! : null,
+		);
 
-        if (source === 'user') {
-            // dispatch json1 operation
-            const path = newNode.getJsonPath();
-            const state = newNode.getState();
-            this.jsonState.insertOperation(path, state);
-        }
+		if (source === 'user') {
+			// dispatch json1 operation
+			const path = newNode.getJsonPath();
+			const state = newNode.getState();
+			this.jsonState.insertOperation(path, state);
+		}
 
-        return newNode;
-    }
+		return newNode;
+	}
 
-    insertAfter(newNode: Parent, refNode: Nullable<Parent> = null, source = 'user') {
-        this.insertBefore(newNode, refNode ? refNode.next : null, source);
+	insertAfter(newNode: Parent, refNode: Nullable<Parent> = null, source = 'user') {
+		this.insertBefore(newNode, refNode ? refNode.next : null, source);
 
-        return newNode;
-    }
+		return newNode;
+	}
 
-    override remove(source = 'user') {
-        if (source === 'user') {
-            // dispatch json1 operation
-            const path = this.getJsonPath();
-            this.jsonState.removeOperation(path);
-        }
+	override remove(source = 'user') {
+		if (source === 'user') {
+			// dispatch json1 operation
+			const path = this.getJsonPath();
+			this.jsonState.removeOperation(path);
+		}
 
-        super.remove(source);
+		super.remove(source);
 
-        return this;
-    }
+		return this;
+	}
 
-    empty() {
-        this.forEach((child) => {
-            this.removeChild(child, 'api');
-        });
-    }
+	empty() {
+		this.forEach((child) => {
+			this.removeChild(child, 'api');
+		});
+	}
 
-    removeChild(node: TreeNode, source = 'user') {
-        if (!this.children.contains(node)) {
-            debug.warn(
-                'Can not removeChild(node), because node is not child of this block',
-            );
-        }
+	removeChild(node: TreeNode, source = 'user') {
+		if (!this.children.contains(node)) {
+			debug.warn(
+				'Can not removeChild(node), because node is not child of this block',
+			);
+		}
 
-        if (node.isParent())
-            node.remove(source);
-        else if (node.isContent())
-            node.remove();
+		if (node.isParent())
+			node.remove(source);
+		else if (node.isContent())
+			node.remove();
 
-        return node;
-    }
+		return node;
+	}
 
-    /**
-     * find the first content block, paragraph.content etc.
-     */
-    firstContentInDescendant() {
-        let likeContentBlock: Nullable<TreeNode> = this.children.head;
+	/**
+	 * find the first content block, paragraph.content etc.
+	 */
+	firstContentInDescendant() {
+		let likeContentBlock: Nullable<TreeNode> = this.children.head;
 
-        while (likeContentBlock && likeContentBlock.isParent())
-            likeContentBlock = likeContentBlock.children.head;
+		while (likeContentBlock && likeContentBlock.isParent())
+			likeContentBlock = likeContentBlock.children.head;
 
-        return likeContentBlock?.isContent() ? likeContentBlock : null;
-    }
+		return likeContentBlock?.isContent() ? likeContentBlock : null;
+	}
 
-    /**
-     * find the last content block in container block.
-     */
-    lastContentInDescendant() {
-        let likeContentBlock: Nullable<TreeNode> = this.children.tail;
+	/**
+	 * find the last content block in container block.
+	 */
+	lastContentInDescendant() {
+		let likeContentBlock: Nullable<TreeNode> = this.children.tail;
 
-        while (likeContentBlock && likeContentBlock.isParent())
-            likeContentBlock = likeContentBlock.children.tail;
+		while (likeContentBlock && likeContentBlock.isParent())
+			likeContentBlock = likeContentBlock.children.tail;
 
-        return likeContentBlock?.isContent() ? likeContentBlock : null;
-    }
+		return likeContentBlock?.isContent() ? likeContentBlock : null;
+	}
 
-    breadthFirstTraverse(this: Parent, callback: (node: TreeNode) => void) {
-        const queue: TreeNode[] = [this];
+	breadthFirstTraverse(this: Parent, callback: (node: TreeNode) => void) {
+		const queue: TreeNode[] = [this];
 
-        while (queue.length) {
-            const node = queue.shift()!;
+		while (queue.length) {
+			const node = queue.shift()!;
 
-            callback(node);
+			callback(node);
 
-            if (node.isParent())
-                node.children.forEach(child => queue.push(child));
-        }
-    }
+			if (node.isParent())
+				node.children.forEach(child => queue.push(child));
+		}
+	}
 
-    depthFirstTraverse(this: Parent, callback: (node: TreeNode) => void) {
-        const stack: TreeNode[] = [this];
+	depthFirstTraverse(this: Parent, callback: (node: TreeNode) => void) {
+		const stack: TreeNode[] = [this];
 
-        while (stack.length) {
-            const node = stack.shift()!;
+		while (stack.length) {
+			const node = stack.shift()!;
 
-            callback(node);
+			callback(node);
 
-            if (node.isParent()) {
-                // Use splice ot make sure the first block in document is process first.
-                node.children.forEach((child, i) => stack.splice(i, 0, child));
-            }
-        }
-    }
+			if (node.isParent()) {
+				// Use splice ot make sure the first block in document is process first.
+				node.children.forEach((child, i) => stack.splice(i, 0, child));
+			}
+		}
+	}
 }
 
 export default Parent;

@@ -1,8 +1,14 @@
 import type { Config } from 'dompurify';
 import DOMPurify from 'dompurify';
 
-const { sanitize, isValidAttribute } = DOMPurify();
+const purify = DOMPurify();
 
-export { Config, isValidAttribute };
+export function isValidAttribute(attrName: string, attrValue: string, element: string): boolean {
+	return purify.isValidAttribute(attrName, attrValue, element);
+}
 
-export default sanitize;
+export { Config };
+
+export default function sanitize(source: string | Node, config?: Config) {
+	return purify.sanitize(source, config);
+}

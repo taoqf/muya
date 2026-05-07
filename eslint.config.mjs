@@ -35,7 +35,7 @@ function typescriptPreset() {
 export default antfu(
     {
         stylistic: {
-            indent: 4,
+            indent: 'tab',
             semi: true,
         },
         react: false,

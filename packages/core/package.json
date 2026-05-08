@@ -1,16 +1,12 @@
 {
 	"name": "@taoqf/muya",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Core package for muya.",
 	"author": "jocs <ransixi@gmail.com>",
 	"license": "MIT",
 	"keywords": [
 		"markdown"
 	],
-	"exports": {
-		".": "./src/index.ts",
-		"./*": "./src/*"
-	},
 	"main": "./lib/cjs/index.js",
 	"module": "./lib/es/index.js",
 	"types": "./lib/types/index.d.ts",

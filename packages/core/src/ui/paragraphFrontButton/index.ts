@@ -80,6 +80,9 @@ export class ParagraphFrontButton extends BaseFloat {
 	}
 
 	override init() {
+		this._floatBox = document.createElement('div');
+		this._container = document.createElement('div');
+		this._iconWrapper = document.createElement('div');
 		const { _floatBox: floatBox, _container: container, _iconWrapper: iconWrapper } = this;
 		// Use to remember which float container is shown.
 		container.classList.add(this.name);

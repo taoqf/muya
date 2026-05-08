@@ -1,86 +1,92 @@
-@supports(-moz-appearance:none) {
-
-  /* CSS code */
-  html {
-    position: fixed;
-  }
+@supports (-moz-appearance: none) {
+	/* CSS code */
+	html {
+		position: fixed;
+	}
 }
 
 html,
 body {
-  margin: 0;
-  padding: 0;
+	margin: 0;
+	padding: 0;
 }
 
 .tools {
-  position: fixed;
-  top: 0;
-  width: 100vw;
-  height: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #fff;
-  z-index: 100000;
+	position: fixed;
+	top: 0;
+	z-index: 100000;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100vw;
+	height: 40px;
+
+	background-color: #fff;
 }
 
 button {
-  padding: 0 5px;
-  height: 26px;
-  margin-right: 10px;
-  box-sizing: border-box;
+	box-sizing: border-box;
+	height: 26px;
+	margin-right: 10px;
+	padding: 0 5px;
 }
 
 input {
-  width: 150px;
-  height: 26px;
-  padding: 0 5px;
-  box-sizing: border-box;
+	box-sizing: border-box;
+	width: 150px;
+	height: 26px;
+	margin-right: 10px;
+	padding: 0 5px;
 
-  border: 1px solid #eee;
-  border-radius: 4px;
-  outline: none;
-  margin-right: 10px;
+	border: 1px solid #eee;
+	border-radius: 4px;
+	outline: none;
 }
 
 .language-selector {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-right: 10px;
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	margin-right: 10px;
 }
 
 .language-selector label {
-  font-size: 14px;
-  color: #333;
-  white-space: nowrap;
+	color: #333;
+	font-size: 14px;
+	white-space: nowrap;
 }
 
 .language-selector select {
-  height: 26px;
-  padding: 0 8px;
-  border: 1px solid #eee;
-  border-radius: 4px;
-  outline: none;
-  background-color: #fff;
-  cursor: pointer;
-  font-size: 14px;
+	height: 26px;
+	padding: 0 8px;
+
+	font-size: 14px;
+
+	background-color: #fff;
+	border: 1px solid #eee;
+	border-radius: 4px;
+	outline: none;
+	cursor: pointer;
 }
 
 .editor-container {
-  width: 100vw;
-  height: 100vh;
-  position: absolute;
-  top: 0;
-  left: 0;
-  padding-top: 80px;
-  box-sizing: border-box;
-  overflow: auto;
+	position: absolute;
+	top: 0;
+	left: 0;
+
+	box-sizing: border-box;
+	width: 100vw;
+	height: 100vh;
+	padding-top: 80px;
+	overflow: auto;
 }
 
 #editor {
-  box-sizing: border-box;
-  width: 100%;
-  font-size: 16px;
-  outline: none;
+	box-sizing: border-box;
+	width: 100%;
+
+	font-size: 16px;
+
+	outline: none;
 }

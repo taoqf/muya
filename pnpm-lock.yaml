@@ -74,7 +74,7 @@ importers:
 
   examples:
     dependencies:
-      '@muyajs/core':
+      '@taoqf/muya':
         specifier: workspace:*
         version: link:../packages/core
       intl-segmenter-polyfill:

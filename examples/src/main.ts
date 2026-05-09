@@ -1,55 +1,56 @@
 /* eslint-disable antfu/no-top-level-await */
-import type { TState } from '@muyajs/core';
+import type { TState } from '@taoqf/muya';
 import {
-    CodeBlockLanguageSelector,
-    EmojiSelector,
-    en,
-    ImageEditTool,
-    ImageResizeBar,
-    ImageToolBar,
-    InlineFormatToolbar,
-    ja,
-    MarkdownToHtml,
-    Muya,
-    ParagraphFrontButton,
-    ParagraphFrontMenu,
-    ParagraphQuickInsertMenu,
-    PreviewToolBar,
-    TableColumnToolbar,
-    TableDragBar,
-    TableRowColumMenu,
-    zh,
-} from '@muyajs/core';
+	CodeBlockLanguageSelector,
+	EmojiSelector,
+	en,
+	ImageEditTool,
+	ImageResizeBar,
+	ImageToolBar,
+	InlineFormatToolbar,
+	ja,
+	MarkdownToHtml,
+	Muya,
+	ParagraphFrontButton,
+	ParagraphFrontMenu,
+	ParagraphQuickInsertMenu,
+	PreviewToolBar,
+	TableColumnToolbar,
+	TableDragBar,
+	TableRowColumMenu,
+	zh,
+} from '@taoqf/muya';
 
 import { DEFAULT_MARKDOWN } from './data';
 
+import '../../packages/core/lib/muya.css';
 import './style.css';
 
 // Fix Intl.Segmenter is not work on firefox.
 if (!(Intl as any).Segmenter) {
-    const polyfill = await import('intl-segmenter-polyfill/dist/bundled');
-    (Intl as any).Segmenter = await polyfill.createIntlSegmenterPolyfill();
+	const polyfill = await import('intl-segmenter-polyfill/dist/bundled');
+	(Intl as any).Segmenter = await polyfill.createIntlSegmenterPolyfill();
 }
 
 async function imagePathPicker() {
-    return 'https://pics.ettoday.net/images/2253/d2253152.jpg';
+	return 'https://pics.ettoday.net/images/2253/d2253152.jpg';
 }
 
 async function imageAction() {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve(
-                'https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg',
-            );
-        }, 3000);
-    });
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			resolve(
+				'https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg',
+			);
+		}, 3000);
+	});
 }
 
 Muya.use(EmojiSelector);
 Muya.use(InlineFormatToolbar);
 Muya.use(ImageEditTool, {
-    imagePathPicker,
-    imageAction,
+	imagePathPicker,
+	imageAction,
 });
 Muya.use(ImageToolBar);
 Muya.use(ImageResizeBar);
@@ -76,79 +77,79 @@ const setContentBtn: HTMLButtonElement = document.querySelector('#set-content')!
 const selectAllBtn: HTMLButtonElement = document.querySelector('#select-all')!;
 
 const muya = new Muya(container, {
-    markdown: DEFAULT_MARKDOWN,
+	markdown: DEFAULT_MARKDOWN,
 });
 
-muya.locale(zh);
+// muya.locale(zh);
 
 muya.init();
 
 // Language switcher
 const languageSelect: HTMLSelectElement = document.querySelector('#language-select')!;
 languageSelect.addEventListener('change', (event) => {
-    const lang = (event.target as HTMLSelectElement).value;
-    switch (lang) {
-        case 'en':
-            muya.locale(en);
-            break;
-        case 'ja':
-            muya.locale(ja);
-            break;
-        case 'zh':
-            muya.locale(zh);
-            break;
-    }
+	const lang = (event.target as HTMLSelectElement).value;
+	switch (lang) {
+		case 'en':
+			muya.locale(en);
+			break;
+		case 'ja':
+			muya.locale(ja);
+			break;
+		case 'zh':
+			muya.locale(zh);
+			break;
+	}
 });
 
 undoBtn.addEventListener('click', () => {
-    muya.undo();
+	muya.undo();
 });
 
 redoBtn.addEventListener('click', () => {
-    muya.redo();
+	muya.redo();
 });
 
 searchInput.addEventListener('input', (event) => {
-    const value = (event.target as HTMLInputElement).value;
+	const value = (event.target as HTMLInputElement).value;
 
-    muya.search(value, { isRegexp: true });
+	muya.search(value, { isRegexp: true });
 });
 
 previousBtn.addEventListener('click', () => {
-    muya.find('previous');
+	muya.find('previous');
 });
 
 nextBtn.addEventListener('click', () => {
-    muya.find('next');
+	muya.find('next');
 });
 
 singleBtn.addEventListener('click', () => {
-    muya.replace(replaceInput.value, { isSingle: true, isRegexp: true });
+	muya.replace(replaceInput.value, { isSingle: true, isRegexp: true });
 });
 
 allBtn.addEventListener('click', () => {
-    muya.replace(replaceInput.value, { isSingle: false, isRegexp: false });
+	muya.replace(replaceInput.value, { isSingle: false, isRegexp: false });
 });
 
 selectAllBtn.addEventListener('click', () => {
-    muya.selectAll();
+	muya.selectAll();
 });
 
 const content = [
-    {
-        name: 'paragraph',
-        text: 'foo bar',
-    },
+	{
+		name: 'paragraph',
+		text: 'foo bar',
+	},
 ];
 
 setContentBtn.addEventListener('click', () => {
-    muya.setContent(content as TState[]);
+	muya.setContent(content as TState[]);
 });
 
 muya.on('json-change', (_changes) => {
-    // console.log(JSON.stringify(muya.getState(), null, 2))
-    // console.log(muya.getMarkdown())
-    // console.log(JSON.stringify(_changes, null, 2));
+	// console.log(JSON.stringify(muya.getState(), null, 2))
+	// console.log(muya.getMarkdown())
+	// console.log(JSON.stringify(_changes, null, 2));
 });
 
 // muya.on('selection-change', changes => {
@@ -158,8 +159,8 @@ muya.on('json-change', (_changes) => {
 
 const md2Html = new MarkdownToHtml(DEFAULT_MARKDOWN);
 md2Html.generate().then((_html) => {
-    // const container = document.createElement("div");
-    // container.innerHTML = _html;
-    // document.body.appendChild(container);
-    // console.log(_html);
+	// const container = document.createElement("div");
+	// container.innerHTML = _html;
+	// document.body.appendChild(container);
+	// console.log(_html);
 });

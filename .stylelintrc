@@ -1,6 +1,7 @@
 {
 	"extends": [ "stylelint-config-standard" ],
 	"plugins": [ "stylelint-order", "stylelint-config-rational-order/plugin" ],
+	"ignoreFiles": [ "**/*.html", "**/*.htm", "**/*.vue", "**/*.jsx", "**/*.tsx", "**/*.js", "**/*.ts", "**/*.mjs" ],
 	"rules": {
 		"order/properties-order": [ [ ], { "severity": "warning" } ],
 		"declaration-empty-line-before": [

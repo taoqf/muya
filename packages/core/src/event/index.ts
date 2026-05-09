@@ -2,152 +2,155 @@ import type { IEvent, IListeners, Listener } from './types';
 
 // TODO: @Jocs use the same name function in utils.
 function* uniqueIdGenerator() {
-    let id = 0;
+	let id = 0;
 
-    while (true)
-        yield id++;
+	while (true)
+		yield id++;
 }
 const PREFIX = 'event-';
 const idIterator = uniqueIdGenerator();
 
 class EventCenter {
-    public events: IEvent[] = [];
-    public listeners: IListeners = {};
+	public events: IEvent[] = [];
+	public listeners: IListeners = {};
 
-    get eventId() {
-        return `${PREFIX}${idIterator.next().value}`;
-    }
+	get eventId() {
+		return `${PREFIX}${idIterator.next().value}`;
+	}
 
-    /**
-     * [attachDOMEvent] bind event listener to target, and return a unique ID,
-     * this ID
-     */
-    attachDOMEvent(
-        target: HTMLElement | Document,
-        event: string,
-        listener: EventListener,
-        capture?: boolean | AddEventListenerOptions,
-    ): string {
-        if (this.checkHasBind(target, event, listener, capture))
-            return '';
+	/**
+	 * [attachDOMEvent] bind event listener to target, and return a unique ID,
+	 * this ID
+	 */
+	attachDOMEvent(
+		target: HTMLElement | Document,
+		event: string,
+		listener: EventListener,
+		capture?: boolean | AddEventListenerOptions,
+	): string {
+		if (!target)
+			return '';
 
-        const { eventId } = this;
-        target.addEventListener(event, listener, capture);
-        this.events.push({
-            eventId,
-            target,
-            event,
-            listener,
-            capture,
-        });
+		if (this.checkHasBind(target, event, listener, capture))
+			return '';
 
-        return eventId;
-    }
+		const { eventId } = this;
+		target.addEventListener(event, listener, capture);
+		this.events.push({
+			eventId,
+			target,
+			event,
+			listener,
+			capture,
+		});
 
-    /**
-     * [detachDOMEvent removeEventListener]
-     * @param  {[type]} eventId [unique eventId]
-     */
-    detachDOMEvent(eventId: string) {
-        if (!eventId)
-            return false;
+		return eventId;
+	}
 
-        const removeEvent = this.events.find(e => e.eventId === eventId);
-        if (removeEvent) {
-            const { target, event, listener, capture } = removeEvent;
-            target.removeEventListener(event, listener, capture);
-            const index = this.events.findIndex(e => e.eventId === eventId);
-            this.events.splice(index, 1);
-        }
-    }
+	/**
+	 * [detachDOMEvent removeEventListener]
+	 * @param  {[type]} eventId [unique eventId]
+	 */
+	detachDOMEvent(eventId: string) {
+		if (!eventId)
+			return false;
 
-    /**
-     * [detachAllDomEvents remove all the DOM events handler]
-     */
-    detachAllDomEvents() {
-        for (const removedEvent of this.events) {
-            const { target, event, listener, capture } = removedEvent;
-            target.removeEventListener(event, listener, capture);
-        }
+		const removeEvent = this.events.find(e => e.eventId === eventId);
+		if (removeEvent) {
+			const { target, event, listener, capture } = removeEvent;
+			target.removeEventListener(event, listener, capture);
+			const index = this.events.findIndex(e => e.eventId === eventId);
+			this.events.splice(index, 1);
+		}
+	}
 
-        this.events = [];
-    }
+	/**
+	 * [detachAllDomEvents remove all the DOM events handler]
+	 */
+	detachAllDomEvents() {
+		for (const removedEvent of this.events) {
+			const { target, event, listener, capture } = removedEvent;
+			target.removeEventListener(event, listener, capture);
+		}
 
-    /**
-     * inner method for on and once
-     */
-    subscribe(event: string, listener: Listener, once = false) {
-        const listeners = this.listeners[event];
-        const handler = { listener, once };
-        if (listeners && Array.isArray(listeners))
-            listeners.push(handler);
-        else
-            this.listeners[event] = [handler];
-    }
+		this.events = [];
+	}
 
-    /**
-     * [on] on custom event
-     */
-    on(event: string, listener: Listener) {
-        this.subscribe(event, listener);
-    }
+	/**
+	 * inner method for on and once
+	 */
+	subscribe(event: string, listener: Listener, once = false) {
+		const listeners = this.listeners[event];
+		const handler = { listener, once };
+		if (listeners && Array.isArray(listeners))
+			listeners.push(handler);
+		else
+			this.listeners[event] = [handler];
+	}
 
-    /**
-     * [off] off custom event
-     */
-    off(event: string, listener: Listener) {
-        const listeners = this.listeners[event];
-        if (
-            Array.isArray(listeners)
-            && listeners.find(l => l.listener === listener)
-        ) {
-            const index = listeners.findIndex(l => l.listener === listener);
-            listeners.splice(index, 1);
-        }
-    }
+	/**
+	 * [on] on custom event
+	 */
+	on(event: string, listener: Listener) {
+		this.subscribe(event, listener);
+	}
 
-    /**
-     * [once] subscribe event and listen once
-     */
-    once(event: string, listener: Listener) {
-        this.subscribe(event, listener, true);
-    }
+	/**
+	 * [off] off custom event
+	 */
+	off(event: string, listener: Listener) {
+		const listeners = this.listeners[event];
+		if (
+			Array.isArray(listeners)
+			&& listeners.find(l => l.listener === listener)
+		) {
+			const index = listeners.findIndex(l => l.listener === listener);
+			listeners.splice(index, 1);
+		}
+	}
 
-    /**
-     * emit custom event
-     */
-    emit(event: string, ...data: unknown[]) {
-        const eventListener = this.listeners[event];
+	/**
+	 * [once] subscribe event and listen once
+	 */
+	once(event: string, listener: Listener) {
+		this.subscribe(event, listener, true);
+	}
 
-        if (eventListener && Array.isArray(eventListener)) {
-            eventListener.forEach(({ listener, once }) => {
-                listener(...data);
-                if (once)
-                    this.off(event, listener);
-            });
-        }
-    }
+	/**
+	 * emit custom event
+	 */
+	emit(event: string, ...data: unknown[]) {
+		const eventListener = this.listeners[event];
 
-    // Determine whether the event has been bind
-    checkHasBind(
-        cTarget: HTMLElement | Document,
-        cEvent: string,
-        cListener: EventListenerOrEventListenerObject,
-        cCapture?: boolean | AddEventListenerOptions,
-    ) {
-        for (const { target, event, listener, capture } of this.events) {
-            if (
-                target === cTarget
-                && event === cEvent
-                && listener === cListener
-                && capture === cCapture
-            ) {
-                return true;
-            }
-        }
+		if (eventListener && Array.isArray(eventListener)) {
+			eventListener.forEach(({ listener, once }) => {
+				listener(...data);
+				if (once)
+					this.off(event, listener);
+			});
+		}
+	}
 
-        return false;
-    }
+	// Determine whether the event has been bind
+	checkHasBind(
+		cTarget: HTMLElement | Document,
+		cEvent: string,
+		cListener: EventListenerOrEventListenerObject,
+		cCapture?: boolean | AddEventListenerOptions,
+	) {
+		for (const { target, event, listener, capture } of this.events) {
+			if (
+				target === cTarget
+				&& event === cEvent
+				&& listener === cListener
+				&& capture === cCapture
+			) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 }
 
 export default EventCenter;
